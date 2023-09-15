@@ -7,26 +7,24 @@ import (
 	"net/http"
 )
 
-var port = "40400"
-
 func initApp() {
 	App = &Application{}
 }
 
 func main() {
+	initApp()
+	App.initConfig()
+
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     App.Config.RedisAddr,
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
 
-	initApp()
-	App.initConfig()
-
 	http.Handle("/weather", WeatherHandler{
-		App.Config.WeatherApiUri + App.Config.WeatherApiKey,
-		"weatherservice"})
-	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+		Url:      App.Config.WeatherApiUri + App.Config.WeatherApiKey,
+		CacheKey: "weatherservice"})
+	err := http.ListenAndServe(fmt.Sprintf(":%s", App.Config.Port), nil)
 	if err != nil {
 		log.Fatalln("Failed to initialise a web server")
 	} else {

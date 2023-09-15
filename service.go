@@ -56,6 +56,8 @@ func (ws *WeatherService) GetWeather(ctx context.Context) (string, error) {
 	res.WindDirection = dayData.D
 	res.MaxUV = dayData.U
 	res.Imperial = true
+	res.LocationID, _ = strconv.Atoi(locationID)
+	//res.LocationID, _ = strconv.Atoi(body.SiteRep.DV.Location.i)
 
 	r, err := json.Marshal(res)
 	if err != nil {

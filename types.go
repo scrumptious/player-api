@@ -10,6 +10,7 @@ type Response struct {
 	Msg  string
 }
 type WeatherData struct {
+	LocationID    int    `json:"locationID"`
 	Day           string `json:"day"`
 	Temperature   int    `json:"temperature"`
 	Imperial      bool   `json:"imperial"`
@@ -47,10 +48,9 @@ type WeatherAPIData struct {
 			DataDate string `json:"data_date"`
 			Type     string `json:"type"`
 			Location struct {
-				name      string
-				country   string
-				elevation float32
-				Period    []Period
+				i      string
+				name   string
+				Period []Period
 			}
 		}
 	}
