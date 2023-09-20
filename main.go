@@ -32,6 +32,7 @@ func main() {
 		Password: "",
 		DB:       0})
 
+	r := mux.NewRouter()
 	wh := handlers.NewWeather(
 		types.App.Config.WeatherApiUri+types.App.Config.WeatherApiKey,
 		"weatherservice",
@@ -39,11 +40,19 @@ func main() {
 	)
 	ph := handlers.NewPing(log)
 	plh := handlers.NewPlayer()
-	r := mux.NewRouter()
 
-	r.Handle("/ping", ph)
-	r.Handle("/weather", wh).Methods("GET")
-	r.Handle("/player", plh)
+	getR := r.Methods(http.MethodGet).Subrouter()
+	getR.HandleFunc("/ping", ph.Ping)
+	getR.HandleFunc("/weather", wh.GetWeather)
+	getR.HandleFunc("/players", plh.GetPlayers)
+
+	postR := r.Methods(http.MethodPost).Subrouter()
+	postR.HandleFunc("/player", plh.PostPlayer)
+	postR.Use(plh.MiddlewareUniqueName)
+
+	putR := r.Methods(http.MethodPut).Subrouter()
+	putR.HandleFunc("/player/{id:[0-9]+}", plh.PutPlayer)
+	putR.Use(plh.MiddlewareUniqueName)
 
 	s := &http.Server{
 		Addr:         fmt.Sprintf("localhost:%s", types.App.Config.Port),

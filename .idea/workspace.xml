@@ -5,20 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="83c0f73a-fc50-4973-b3bb-813df8aced33" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/data/player.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/handlers/Player.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/weather.go" beforeDir="false" afterPath="$PROJECT_DIR$/data/weather.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/player.go" beforeDir="false" afterPath="$PROJECT_DIR$/data/player.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/Player.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/player.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/ping.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/ping.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/weather.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/weather.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/redis/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/redis/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/service_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/types/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/types/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,6 +61,25 @@
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/handlers" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="weather-service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="weather-service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">

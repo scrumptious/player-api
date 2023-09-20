@@ -26,9 +26,8 @@ func NewWeather(url, cacheKey string, l *logrus.Logger) *Weather {
 	return &Weather{url: url, cacheKey: cacheKey, l: l}
 }
 
-// ServeHTTP implements handler interface
-// in this case it will call weather API to get forecast for tomorrow and return JSON
-func (w *Weather) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+// GetWeather will call weather API to get forecast for tomorrow and return JSON
+func (w *Weather) GetWeather(rw http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	start := time.Now()
 	locationID := r.URL.Query().Get("locationID")
