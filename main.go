@@ -48,11 +48,11 @@ func main() {
 
 	postR := r.Methods(http.MethodPost).Subrouter()
 	postR.HandleFunc("/player", plh.PostPlayer)
-	postR.Use(plh.MiddlewareUniqueName)
+	postR.Use(plh.MiddlewareSetIDAndUniqueName, plh.MiddlewarePopulateLastModified)
 
 	putR := r.Methods(http.MethodPut).Subrouter()
 	putR.HandleFunc("/player/{id:[0-9]+}", plh.PutPlayer)
-	putR.Use(plh.MiddlewareUniqueName)
+	putR.Use(plh.MiddlewareSetIDAndUniqueName, plh.MiddlewarePopulateLastModified)
 
 	s := &http.Server{
 		Addr:         fmt.Sprintf("localhost:%s", types.App.Config.Port),

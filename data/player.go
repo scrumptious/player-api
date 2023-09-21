@@ -3,12 +3,14 @@ package data
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
+	"regexp"
 	"time"
 )
 
-type Vocation int
+type Vocation int64
 
 const (
 	None Vocation = iota
@@ -20,6 +22,7 @@ const (
 	RoyalPaladin
 	Druid
 	ElderDruid
+	InvalidVocation
 )
 
 func (v Vocation) String() string {
@@ -40,21 +43,24 @@ func (v Vocation) String() string {
 		return "Druid"
 	case ElderDruid:
 		return "Elder Druid"
-	default:
+	case None:
 		return "None"
+	default:
+		return "invalid"
 	}
 }
 
 type Player struct {
-	ID             int       `json:"-"`
-	Name           string    `json:"name"`
-	Level          int       `json:"level"`
-	AccountCreated time.Time `json:"accountCreated"`
-	Vocation       Vocation  `json:"vocation"`
+	ID             int       `json:"id"`
+	Name           string    `json:"name" validate:"required,alpha"`
+	Level          int       `json:"level" validate:"required,gte=1,lte=10000"`
+	AccountCreated time.Time `json:"accountCreated" validate:"required"`
+	Vocation       Vocation  `json:"vocation" validate:"vocation"`
+	Signature      string    `json:"signature" validate:"signature"`
+	LastModified   time.Time `json:"-" validate:"required"`
 }
 
 func (p *Player) ToJSON() string {
-	//fmt.Printf("type of Player = %T", *p)
 	j, err := json.Marshal(p)
 	if err != nil {
 		log.Fatalln("failed encoding json")
@@ -62,13 +68,47 @@ func (p *Player) ToJSON() string {
 	return string(j)
 }
 
-func FromJSON(r *http.Request) (*Player, error) {
-	pl := &Player{}
-	err := json.NewDecoder(r.Body).Decode(pl)
+func (p *Player) FromJSON(r *http.Request) error {
+	err := json.NewDecoder(r.Body).Decode(p)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode json")
+		return fmt.Errorf("failed to decode json")
 	}
-	return pl, nil
+	return nil
+}
+
+func ValidateVocation(fl validator.FieldLevel) bool {
+	result := fl.Field().Int()
+	if result >= int64(InvalidVocation) || result < 0 {
+		return false
+	}
+	return true
+}
+
+func ValidateSignature(fl validator.FieldLevel) bool {
+	r := `[a-z]{3}[0-9]{3}-[a-z]{4}-[0-9]{4}`
+	re := regexp.MustCompile(r)
+	matches := re.FindAllStringSubmatch(fl.Field().String(), -1)
+	fmt.Println("matches: ", matches)
+
+	if len(matches) == 0 {
+		return false
+	}
+	return true
+}
+
+func (p *Player) Validate() error {
+	v := validator.New(validator.WithRequiredStructEnabled())
+	err := v.RegisterValidation("vocation", ValidateVocation)
+	err = v.RegisterValidation("signature", ValidateSignature)
+	if err != nil {
+		fmt.Println("failed registering validation function", err)
+	}
+	return v.Struct(p)
+}
+
+func (p *Players) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
 }
 
 type Players []*Player
@@ -87,12 +127,6 @@ func (p *Players) WriteToJson(rw http.ResponseWriter) {
 		http.Error(rw, "failed to encode json", http.StatusInternalServerError)
 	}
 }
-
-//func GetPlayer(name string) *Player {
-//	for v, _ := range playersList {
-//		if
-//	}
-//}
 
 func GetPlayers() Players {
 	return playersList
