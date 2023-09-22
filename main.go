@@ -44,15 +44,15 @@ func main() {
 	getR := r.Methods(http.MethodGet).Subrouter()
 	getR.HandleFunc("/ping", ph.Ping)
 	getR.HandleFunc("/weather", wh.GetWeather)
-	getR.HandleFunc("/players", plh.GetPlayers)
+	getR.HandleFunc("/", plh.GetPlayers)
 
 	postR := r.Methods(http.MethodPost).Subrouter()
-	postR.HandleFunc("/player", plh.PostPlayer)
-	postR.Use(plh.MiddlewareSetIDAndUniqueName, plh.MiddlewarePopulateLastModified)
+	postR.HandleFunc("/", plh.PostPlayer)
+	postR.Use(plh.MiddlewareSetIDCheckUniqueName, plh.MiddlewarePopulateLastModified)
 
 	putR := r.Methods(http.MethodPut).Subrouter()
-	putR.HandleFunc("/player/{id:[0-9]+}", plh.PutPlayer)
-	putR.Use(plh.MiddlewareSetIDAndUniqueName, plh.MiddlewarePopulateLastModified)
+	putR.HandleFunc("/{id:[0-9]+}", plh.PutPlayer)
+	putR.Use(plh.MiddlewareSetIDCheckUniqueName, plh.MiddlewarePopulateLastModified)
 
 	s := &http.Server{
 		Addr:         fmt.Sprintf("localhost:%s", types.App.Config.Port),

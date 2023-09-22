@@ -1,3 +1,17 @@
+// Package classification of Player API
+//
+// # Documentation of Player API
+//
+// Schemes: http
+// BasePath: /
+// Version: 1.0.0
+//
+// Consumes:
+// - application/json
+//
+// Produces:
+// - application/json
+// swagger:meta
 package handlers
 
 import (
@@ -74,7 +88,7 @@ func (p *Player) PutPlayer(rw http.ResponseWriter, r *http.Request) {
 
 }
 
-func (p *Player) MiddlewareSetIDAndUniqueName(next http.Handler) http.Handler {
+func (p *Player) MiddlewareSetIDCheckUniqueName(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		player := &data.Player{}
 		err := player.FromJSON(r)
