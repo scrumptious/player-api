@@ -19,7 +19,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/scrumptious/weather-service/data"
+	"github.com/scrumptious/weather-service/internal/data"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"

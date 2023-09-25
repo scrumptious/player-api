@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/scrumptious/weather-service/data"
+	"github.com/scrumptious/weather-service/internal/data"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,22 +36,23 @@ func (ws *WeatherService) GetWeather(ctx context.Context) (*data.WeatherData, er
 	}
 	defer resp.Body.Close()
 
-	body := &data.WeatherAPIData{}
-	err = json.NewDecoder(resp.Body).Decode(body)
+	apiData := &data.WeatherAPIData{}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 32768))
+	err = json.Unmarshal(body, apiData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode weather api response")
 	}
-	if body.SiteRep.DV.Location.Period == nil {
+	if apiData.SiteRep.DV.Location.Period == nil {
 		return nil, fmt.Errorf("no weather info found for this location - %s", locationID)
 	}
 	var res data.WeatherData
 
-	dayData := body.SiteRep.DV.Location.Period[0].Rep[0] //Period[0] - first day of the forecast, Rep[0] - day, Rep[1] - night
+	dayData := apiData.SiteRep.DV.Location.Period[0].Rep[0] //Period[0] - first day of the forecast, Rep[0] - day, Rep[1] - night
 
 	res.Temperature, _ = strconv.Atoi(dayData.Dm)
 	res.WindSpeed, _ = strconv.Atoi(dayData.S)
 	res.Humidity, _ = strconv.Atoi(dayData.Hn)
-	res.Day = body.SiteRep.DV.Location.Period[0].Value
+	res.Day = apiData.SiteRep.DV.Location.Period[0].Value
 	res.WindDirection = dayData.D
 	res.MaxUV = dayData.U
 	res.Imperial = true

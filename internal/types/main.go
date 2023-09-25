@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/scrumptious/weather-service/config"
+	"github.com/scrumptious/weather-service/internal/config"
 )
 
 var App *config.Application

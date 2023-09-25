@@ -35,9 +35,9 @@ services:
 #define variables and provide file to populate their values
 secrets:
   db_root_password:
-    file: ./db/db_root_password.txt
+    file: internal/db/db_root_password.txt
   db_password:
-    file: ./db/db_password.txt
+    file: internal/db/db_password.txt
 
 
 volumes:

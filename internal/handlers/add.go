@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/scrumptious/weather-service/data"
+	"github.com/scrumptious/weather-service/internal/data"
 	"net/http"
 )
 

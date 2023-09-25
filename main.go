@@ -5,10 +5,10 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 	red "github.com/redis/go-redis/v9"
-	"github.com/scrumptious/weather-service/config"
-	"github.com/scrumptious/weather-service/handlers"
-	"github.com/scrumptious/weather-service/redis"
-	"github.com/scrumptious/weather-service/types"
+	"github.com/scrumptious/weather-service/internal/config"
+	handlers2 "github.com/scrumptious/weather-service/internal/handlers"
+	"github.com/scrumptious/weather-service/internal/redis"
+	"github.com/scrumptious/weather-service/internal/types"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -34,13 +34,13 @@ func main() {
 		DB:       0})
 
 	r := mux.NewRouter()
-	wh := handlers.NewWeather(
+	wh := handlers2.NewWeather(
 		types.App.Config.WeatherApiUri+types.App.Config.WeatherApiKey,
 		"weatherservice",
 		log,
 	)
-	ph := handlers.NewPing(log)
-	plh := handlers.NewPlayer()
+	ph := handlers2.NewPing(log)
+	plh := handlers2.NewPlayer()
 
 	getR := r.Methods(http.MethodGet).Subrouter()
 	getR.HandleFunc("/ping", ph.Ping)
