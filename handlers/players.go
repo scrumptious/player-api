@@ -1,3 +1,4 @@
+// Package handlers
 // Package classification of Player API
 //
 // # Documentation of Player API
@@ -25,6 +26,35 @@ import (
 	"time"
 )
 
+// Single player returned by the response
+// swagger:response playerResponse
+type playerResponseDef struct {
+	// Single player
+	// in: body
+	Body Player
+}
+
+// A list of Players returned by the response
+// swagger:response playersResponse
+type playersResponseDef struct {
+	// All players
+	// in: body
+	Body []data.Player
+}
+
+// swagger:parameters getPlayer deletePlayer
+type idParam struct {
+	// in: query
+	// minimum: 0
+	// pattern: /[0-9]+/
+	// unique: true
+	// required: true
+	id int64
+}
+
+type noContentDef struct {
+}
+
 type Player struct {
 	l *logrus.Logger
 }
@@ -33,60 +63,12 @@ func NewPlayer() *Player {
 	return &Player{}
 }
 
-func findPlayerWithID(id int) *data.Player {
-	for _, v := range data.GetPlayers() {
-		if v.ID == id {
-			return v
-		}
-	}
-	return nil
-}
-
-func (p *Player) GetPlayers(rw http.ResponseWriter, r *http.Request) {
-	pl := data.GetPlayers()
-	pl.WriteToJson(rw)
-}
-
 func getNextID() int {
 	pl := data.GetPlayers()
 	return pl[len(pl)-1].ID + 1
 }
 
-func (p *Player) PostPlayer(rw http.ResponseWriter, r *http.Request) {
-	id := getNextID()
-	pls := data.GetPlayers()
-	pl := r.Context().Value(PlayerKey{}).(*data.Player)
-	pl.ID = id
-
-	err := pl.Validate()
-	if err != nil {
-		http.Error(rw, fmt.Sprintf(`{"message": "player failed validation", "error": "%s"}`, err), http.StatusBadRequest)
-		return
-	}
-	pls = append(pls, pl)
-
-	pls.WriteToJson(rw)
-}
-
 type PlayerKey struct{}
-
-func (p *Player) PutPlayer(rw http.ResponseWriter, r *http.Request) {
-	pls := data.GetPlayers()
-	updated := r.Context().Value(PlayerKey{}).(*data.Player)
-	if findPlayerWithID(updated.ID) == nil {
-		http.Error(rw, `{"error": "player not found"}`, http.StatusNotFound)
-		return
-	}
-
-	err := updated.Validate()
-	if err != nil {
-		http.Error(rw, fmt.Sprintf(`{"message": "player failed validation", "error": "%s"}`, err), http.StatusBadRequest)
-		return
-	}
-	pls[updated.ID-1] = updated
-	pls.WriteToJson(rw)
-
-}
 
 func (p *Player) MiddlewareSetIDCheckUniqueName(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -129,7 +111,7 @@ func (p *Player) MiddlewareSetIDCheckUniqueName(next http.Handler) http.Handler 
 func (p *Player) MiddlewarePopulateLastModified(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		pl := r.Context().Value(PlayerKey{}).(*data.Player)
-		pl.LastModified = time.Now()
+		pl.UpdatedAt = time.Now().Unix()
 
 		ctx := context.WithValue(r.Context(), PlayerKey{}, pl)
 		req := r.WithContext(ctx)

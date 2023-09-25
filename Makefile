@@ -3,3 +3,8 @@ check_install:
 
 docs: check_install
 	swagger generate spec -o ./swagger.yaml --scan-models
+
+start_db:
+	docker compose up
+
+

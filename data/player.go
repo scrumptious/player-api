@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"regexp"
@@ -50,14 +51,25 @@ func (v Vocation) String() string {
 	}
 }
 
+//swagger:model
 type Player struct {
-	ID             int       `json:"id"`
-	Name           string    `json:"name" validate:"required,alpha"`
-	Level          int       `json:"level" validate:"required,gte=1,lte=10000"`
-	AccountCreated time.Time `json:"accountCreated" validate:"required"`
-	Vocation       Vocation  `json:"vocation" validate:"vocation"`
-	Signature      string    `json:"signature" validate:"signature"`
-	LastModified   time.Time `json:"-" validate:"required"`
+	// the id for this player
+	//
+	// required: true
+	// unique: true
+	// min: 1
+	ID int `json:"id"`
+	// the name of this player
+	//
+	// required: true
+	// unique: true
+	Name      string   `json:"name" validate:"required,alpha"`
+	Level     int      `json:"level" validate:"required,gte=1,lte=10000"`
+	CreatedAt int64    `json:"createdAt" validate:"required"`
+	UpdatedAt int64    `json:"updatedAt" validate:"required"`
+	DeteledAt int64    `json:"-"`
+	Vocation  Vocation `json:"vocation" validate:"vocation"`
+	Signature string   `json:"signature" validate:"signature"`
 }
 
 func (p *Player) ToJSON() string {
@@ -88,7 +100,6 @@ func ValidateSignature(fl validator.FieldLevel) bool {
 	r := `[a-z]{3}[0-9]{3}-[a-z]{4}-[0-9]{4}`
 	re := regexp.MustCompile(r)
 	matches := re.FindAllStringSubmatch(fl.Field().String(), -1)
-	fmt.Println("matches: ", matches)
 
 	if len(matches) == 0 {
 		return false
@@ -106,52 +117,101 @@ func (p *Player) Validate() error {
 	return v.Struct(p)
 }
 
-func (p *Players) Validate() error {
+func (p Players) Validate() error {
 	validate := validator.New()
 	return validate.Struct(p)
 }
 
 type Players []*Player
 
-func (p *Players) ToJSON() string {
-	j, err := json.Marshal(*p)
+func (p Players) ToJSON() string {
+	j, err := json.Marshal(p)
 	if err != nil {
 		log.Fatalln("failed encoding json")
 	}
 	return string(j)
 }
 
-func (p *Players) WriteToJson(rw http.ResponseWriter) {
+// TODO refactor to remove code duplication below
+
+// WriteToJSON writes JSON representation of Player using response writer
+func (p *Player) WriteToJSON(rw http.ResponseWriter) {
 	err := json.NewEncoder(rw).Encode(p)
 	if err != nil {
 		http.Error(rw, "failed to encode json", http.StatusInternalServerError)
 	}
 }
 
+func (p Players) WriteToJSON(rw http.ResponseWriter) {
+	err := json.NewEncoder(rw).Encode(p)
+	if err != nil {
+		http.Error(rw, "failed to encode json", http.StatusInternalServerError)
+	}
+}
+
+func GetPlayer(id int) *Player {
+	for _, p := range GetPlayers() {
+		if p.ID == id {
+			return p
+		}
+	}
+	return nil
+}
 func GetPlayers() Players {
 	return playersList
 }
 
+func FindPlayerWithID(id int) int {
+	for i, v := range GetPlayers() {
+		if v.ID == id {
+			return i
+		}
+	}
+	return -1
+}
+
+func AddPlayer(player *Player) Players {
+	playersList = append(playersList, player)
+	return playersList
+}
+
+var ErrNotFound = errors.New("ErrNotFound: player not found")
+
+func DeletePlayer(id int) error {
+	i := FindPlayerWithID(id)
+	if i == -1 {
+		return ErrNotFound
+	}
+	pls := GetPlayers()
+	plsNew := append(pls[:i], pls[i+1:]...)
+	playersList = plsNew
+
+	return nil
+}
+
 var playersList = Players{
 	&Player{
-		ID:             1,
-		Name:           "Eldernicus",
-		Level:          315,
-		AccountCreated: time.Date(2015, 8, 13, 12, 23, 5, 0, time.UTC),
-		Vocation:       ElderDruid,
+		ID:        1,
+		Name:      "Eldernicus",
+		Level:     315,
+		CreatedAt: time.Date(2015, 8, 13, 12, 23, 5, 0, time.UTC).Unix(),
+		UpdatedAt: time.Now().Unix(),
+		Vocation:  ElderDruid,
 	},
 	&Player{
-		ID:             2,
-		Name:           "Magicka",
-		Level:          54,
-		AccountCreated: time.Date(2013, 8, 13, 12, 23, 5, 0, time.UTC),
-		Vocation:       MasterSorcerer,
+		ID:        2,
+		Name:      "Magicka",
+		Level:     54,
+		CreatedAt: time.Date(2013, 8, 13, 12, 23, 5, 0, time.UTC).Unix(),
+		UpdatedAt: time.Now().Unix(),
+		Vocation:  MasterSorcerer,
 	},
 	&Player{
-		ID:             3,
-		Name:           "TankEvans",
-		Level:          182,
-		AccountCreated: time.Date(2014, 8, 13, 12, 23, 5, 0, time.UTC),
-		Vocation:       EliteKnight,
+		ID:        3,
+		Name:      "TankEvans",
+		Level:     182,
+		CreatedAt: time.Date(2014, 8, 13, 12, 23, 5, 0, time.UTC).Unix(),
+		UpdatedAt: time.Now().Unix(),
+		Vocation:  EliteKnight,
 	},
 }

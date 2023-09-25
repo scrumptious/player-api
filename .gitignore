@@ -1,2 +1,4 @@
 swagger.yaml
 swagger.json
+/db/db_password.txt
+/db/db_root_password.txt

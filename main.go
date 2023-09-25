@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 	red "github.com/redis/go-redis/v9"
 	"github.com/scrumptious/weather-service/config"
@@ -44,14 +45,26 @@ func main() {
 	getR := r.Methods(http.MethodGet).Subrouter()
 	getR.HandleFunc("/ping", ph.Ping)
 	getR.HandleFunc("/weather", wh.GetWeather)
-	getR.HandleFunc("/", plh.GetPlayers)
+	getR.HandleFunc("/player/{id:[0-9]+}", plh.GetPlayer)
+	getR.HandleFunc("/players", plh.GetPlayers)
+
+	opts := middleware.RedocOpts{
+		SpecURL: "/swagger.yaml",
+		Title:   "Player API documentation",
+	}
+	dh := middleware.Redoc(opts, nil)
+	getR.Handle("/docs", dh)
+	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+
+	delR := r.Methods(http.MethodDelete).Subrouter()
+	delR.HandleFunc("/player/{id:[0-9]+}", plh.DeletePlayer)
 
 	postR := r.Methods(http.MethodPost).Subrouter()
-	postR.HandleFunc("/", plh.PostPlayer)
+	postR.HandleFunc("/player", plh.PostPlayer)
 	postR.Use(plh.MiddlewareSetIDCheckUniqueName, plh.MiddlewarePopulateLastModified)
 
 	putR := r.Methods(http.MethodPut).Subrouter()
-	putR.HandleFunc("/{id:[0-9]+}", plh.PutPlayer)
+	putR.HandleFunc("/player/{id:[0-9]+}", plh.PutPlayer)
 	putR.Use(plh.MiddlewareSetIDCheckUniqueName, plh.MiddlewarePopulateLastModified)
 
 	s := &http.Server{
