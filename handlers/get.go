@@ -29,7 +29,7 @@ import (
 func (p *Player) GetPlayer(rw http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
-		http.Error(rw, fmt.Sprintf(`{"message": "incorrect or missing player id", "error": "%s"}`), http.StatusBadRequest)
+		http.Error(rw, fmt.Sprintf(`{"message": "incorrect or missing player id", "error": "%s"}`, err), http.StatusBadRequest)
 	}
 	player := data.GetPlayer(id)
 	if player == nil {
