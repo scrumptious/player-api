@@ -5,8 +5,8 @@ import (
 	"fmt"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/scrumptious/weather-service/data"
-	"github.com/scrumptious/weather-service/service"
+	"github.com/scrumptious/weather-service/internal/data"
+	"github.com/scrumptious/weather-service/internal/service"
 )
 
 var _ = Describe("Service", func() {

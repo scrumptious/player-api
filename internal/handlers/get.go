@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/scrumptious/weather-service/data"
+	"github.com/scrumptious/weather-service/internal/data"
 	"net/http"
 	"strconv"
 )
